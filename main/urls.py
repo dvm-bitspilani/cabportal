@@ -4,12 +4,15 @@ from . import views
 from .views import GoogleLogin, BookTravellerView, SearchTravellersView, StopListView, UserBookingsView, CustomerSignupView
 from .views import CabBookingView
 from .views import manage_cars, add_car, vendor_cab_bookings, confirm_cab_booking
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
     # Auth
     path('login/', auth_views.LoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('auth/google/', GoogleLogin.as_view(), name='google_login'),
+    path('auth/login/', TokenObtainPairView.as_view(), name='token_obtain_login'),
+    path('auth/refresh/', TokenRefreshView.as_view(), name='refresh_token'),
     path('customer-signup/', CustomerSignupView.as_view(), name='customer_signup'),
     path('book-traveller/', BookTravellerView.as_view(), name='book_traveller'),
     path('vendor-bookings/', views.vendor_bookings_view, name='vendor_bookings'),
