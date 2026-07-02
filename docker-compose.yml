@@ -17,7 +17,7 @@ services:
     env_file:
       - .env
     ports:
-      - "127.0.0.1:8011:8000"
+      - "8011:8000"
     depends_on:
       - db
     volumes:

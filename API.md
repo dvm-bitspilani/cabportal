@@ -4,6 +4,72 @@ This document provides documentation for all the API endpoints in the Cab Portal
 
 ## Authentication
 
+The API uses **JWT (SimpleJWT)**. Obtain an `access`/`refresh` token pair via one of
+the login endpoints below, then send `Authorization: Bearer <access>` on every
+endpoint marked `IsAuthenticated`. When the access token expires, exchange the
+refresh token at `/auth/refresh/` for a new access token.
+
+> **User provisioning:** There is no self-serve registration API. Users are created
+> by an administrator through the Django admin or `python manage.py createsuperuser`
+> (Google Login also auto-creates a user on first sign-in). Passwords are stored
+> hashed using Django's default PBKDF2 hasher.
+
+### Username / Password Login
+
+*   **URL**: `/auth/login/`
+*   **Method**: `POST`
+*   **Description**: Authenticates an existing user with their username and password and returns a JWT access and refresh token pair.
+*   **Permissions**: None
+*   **Request Body**:
+    *   `username` (string, required)
+    *   `password` (string, required)
+    ```json
+    {
+        "username": "ashutosh",
+        "password": "your_password"
+    }
+    ```
+*   **Success Response (200 OK)**:
+    ```json
+    {
+        "refresh": "...",
+        "access": "..."
+    }
+    ```
+*   **Error Response (401 Unauthorized)**:
+    ```json
+    {
+        "detail": "No active account found with the given credentials"
+    }
+    ```
+
+### Refresh Token
+
+*   **URL**: `/auth/refresh/`
+*   **Method**: `POST`
+*   **Description**: Exchanges a valid refresh token for a new access token.
+*   **Permissions**: None
+*   **Request Body**:
+    *   `refresh` (string, required)
+    ```json
+    {
+        "refresh": "..."
+    }
+    ```
+*   **Success Response (200 OK)**:
+    ```json
+    {
+        "access": "..."
+    }
+    ```
+*   **Error Response (401 Unauthorized)**:
+    ```json
+    {
+        "detail": "Token is invalid or expired",
+        "code": "token_not_valid"
+    }
+    ```
+
 ### Google Login
 
 *   **URL**: `/auth/google/`
@@ -43,6 +109,43 @@ This document provides documentation for all the API endpoints in the Cab Portal
         "error": "Invalid Google token"
     }
     ```
+
+#### Setting up Google Sign-In
+
+The backend endpoint above already works — it only needs a valid `GOOGLE_CLIENT_ID`.
+The frontend is responsible for the OAuth flow and posting the resulting ID token.
+
+**1. Create an OAuth client in the Google Cloud Console**
+
+1. Go to <https://console.cloud.google.com/> and create or select a project.
+2. **APIs & Services → OAuth consent screen** → choose **External**, set the app
+   name and support email. While the app is in "Testing", add your Google
+   account(s) under **Test users**.
+3. **APIs & Services → Credentials → Create Credentials → OAuth client ID**.
+4. **Application type: Web application.**
+    *   Under **Authorized JavaScript origins**, add the frontend origin(s), e.g.
+        `http://localhost:3000` and your production domain.
+    *   **Authorized redirect URIs** are only needed if the frontend uses the
+        redirect/code flow. The Google Identity Services popup / ID-token flow
+        needs only the JavaScript origin.
+5. Copy the generated **Client ID** and set it as `GOOGLE_CLIENT_ID` in `.env`
+   (see `.env.example`). Use the **same** Client ID in the frontend Google button
+   config so the token's `aud` claim matches what the backend verifies.
+
+**2. Sign-in flow (frontend → backend)**
+
+1. The frontend loads Google Identity Services and renders the sign-in button
+   configured with `client_id = GOOGLE_CLIENT_ID`.
+2. On success Google returns a **credential (ID token, a JWT)**.
+3. The frontend calls `POST /auth/google/` with `{ "token": "<id_token>" }`.
+4. The backend verifies the token against `GOOGLE_CLIENT_ID`, gets-or-creates the
+   `User`, and returns `{ access, refresh, customer }`.
+5. If the user is new (`customer` is `null`), the frontend calls
+   `POST /customer-signup/` with the `Bearer <access>` token to create the
+   customer profile.
+
+> A missing or mismatched `GOOGLE_CLIENT_ID` causes the endpoint to return
+> `401 { "error": "Invalid Google token" }`.
 
 ---
 

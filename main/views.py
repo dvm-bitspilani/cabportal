@@ -15,6 +15,7 @@ from .serializers import (
     CustomerSerializer,
     CabBookingSerializer,
     CabBookingDetailSerializer,
+    CustomTokenObtainPairSerializer,
 )
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -23,6 +24,7 @@ from google.oauth2 import id_token
 from google.auth.transport import requests
 from django.contrib.auth.models import User
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenObtainPairView
 from django.conf import settings
 from rest_framework.permissions import IsAuthenticated
 from django.core.exceptions import ValidationError  
@@ -204,6 +206,10 @@ def edit_route(request, route_id):
         formset = RouteStopFormSet(instance=route)
 
     return render(request, 'main/edit_route.html', {'form': form, 'formset': formset, 'route': route})
+
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
 
 
 class GoogleLogin(APIView):

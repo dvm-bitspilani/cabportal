@@ -1,5 +1,6 @@
 from datetime import timezone,datetime
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import Booking, Travellor, Stop, RouteStop, Customer, Car, CabBooking, Route, Vendor
 from django.contrib.auth.models import User
 from django.db.models import Sum
@@ -32,6 +33,14 @@ class CustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
         fields = ['name', 'contact_number']
+
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)  # {refresh, access}; sets self.user
+        customer = Customer.objects.filter(user=self.user).first()
+        data['customer'] = CustomerSerializer(customer).data if customer else None
+        return data
 
 
 class StopSerializer(serializers.ModelSerializer):
