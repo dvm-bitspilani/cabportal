@@ -155,7 +155,7 @@ REST_FRAMEWORK = {
         "rest_framework.parsers.MultiPartParser",
     ),
 }
-CSRF_TRUSTED_ORIGINS=['http://localhost:8000']
+CSRF_TRUSTED_ORIGINS=['http://localhost:8000', 'https://cab.bits-oasis.org']
 
 ACCESS_TOKEN_LIFETIME = timedelta(days=100)
 REFRESH_TOKEN_LIFETIME = timedelta(days=100)
