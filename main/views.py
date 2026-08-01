@@ -3,6 +3,7 @@ from django.urls import reverse_lazy, reverse
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponseForbidden
 from django.db import transaction
+from django.views.generic import TemplateView
 from .forms import TravellorForm, RouteForm, RouteStopFormSet, StopForm
 from .forms import CarForm, CabBookingConfirmForm, BulkTravellorForm
 from .models import Route, Travellor, Stop, Booking, Customer, CabBooking
@@ -26,7 +27,7 @@ from django.contrib.auth.models import User
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.conf import settings
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.core.exceptions import ValidationError  
 from rest_framework.permissions import IsAuthenticated
 from django.core.exceptions import ValidationError
@@ -437,4 +438,7 @@ class UserBookingsView(APIView):
         serializer = BookingDetailSerializer(bookings, many=True)
         return Response(serializer.data)
 
+class PrivatePolicyView(TemplateView):
+    permission_classes = [AllowAny]
+    template_name = "main/private-policy.html"
 

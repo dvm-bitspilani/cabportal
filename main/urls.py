@@ -38,5 +38,7 @@ urlpatterns = [
 
     # Stop Management
     path('stops/add/', views.create_stop, name='create_stop'),
+
+    path('private-policy/', views.PrivatePolicyView.as_view(), name='private-policy')
 ]
 
