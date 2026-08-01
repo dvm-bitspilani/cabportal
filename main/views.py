@@ -438,7 +438,7 @@ class UserBookingsView(APIView):
         serializer = BookingDetailSerializer(bookings, many=True)
         return Response(serializer.data)
 
-class PrivatePolicyView(TemplateView):
+class PrivacyPolicyView(TemplateView):
     permission_classes = [AllowAny]
-    template_name = "main/private-policy.html"
+    template_name = "privacy-policy.html"
 
