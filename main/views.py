@@ -440,5 +440,5 @@ class UserBookingsView(APIView):
 
 class PrivacyPolicyView(TemplateView):
     permission_classes = [AllowAny]
-    template_name = "privacy-policy.html"
+    template_name = "main/privacy-policy.html"
 
