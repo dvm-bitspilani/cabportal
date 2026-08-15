@@ -6,10 +6,11 @@ from django.db import transaction
 from django.views.generic import TemplateView
 from .forms import TravellorForm, RouteForm, RouteStopFormSet, StopForm
 from .forms import CarForm, CabBookingConfirmForm, BulkTravellorForm
-from .models import Route, Travellor, Stop, Booking, Customer, CabBooking
+from .models import Route, RouteStop, Travellor, Stop, Booking, Customer, CabBooking
 from .models import Car
 from .serializers import (
     BookingSerializer,
+    RouteStopSerializer,
     TravellorSerializer,
     StopSerializer,
     BookingDetailSerializer,
@@ -270,8 +271,8 @@ class BookTravellerView(APIView):
 class StopListView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
-        stops = Stop.objects.all()
-        serializer = StopSerializer(stops, many=True)
+        stops = RouteStop.objects.all()
+        serializer = RouteStopSerializer(stops, many=True)
         return Response(serializer.data)
 
 
