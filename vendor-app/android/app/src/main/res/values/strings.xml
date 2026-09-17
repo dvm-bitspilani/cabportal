@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Ridezy Vendor</string>
+    <string name="title_activity_main">Ridezy Vendor</string>
+    <string name="package_name">com.ridezy.vendor</string>
+    <string name="custom_url_scheme">com.ridezy.vendor</string>
+</resources>

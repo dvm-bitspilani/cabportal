@@ -1,0 +1,10 @@
+export type Page<T> = { count: number; next: string | null; previous: string | null; results: T[] }
+export type Vendor = { id: number; username: string; email: string; company_name: string; contact_number: string; address: string }
+export type Stop = { id: number; name: string; description: string }
+export type RouteStop = { id: number; stop_id: number; stop: Stop; order: number; minutes_from_previous_stop: number; distance_from_previous_stop: number }
+export type Route = { id: number; name: string; description: string; stop_count: number; route_stops: RouteStop[] }
+export type TripStatus = 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'
+export type Trip = { id: number; route: number; route_name: string; departure_time: string; vehicle_capacity: number; cost_per_km: string; status: TripStatus; booked_seats: number; schedule: Array<{ route_stop_id: number; stop_id: number; stop_name: string; order: number; estimated_arrival_time: string }> }
+export type Booking = { id: number; trip_id: number; customer_name: string; customer_phone: string; route_name: string; departure_time: string; start_stop: Stop; end_stop: Stop; seats: number; status: string; booking_time: string }
+export type Car = { id: number; name: string; license_plate: string }
+export type CabBooking = { id: number; customer_name: string; customer_phone: string; pickup_location: string; dropoff_location: string; pickup_time: string; people_count: number; booking_time: string; status: string; driver_name: string | null; driver_no: string | null; car: Car | null }

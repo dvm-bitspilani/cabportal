@@ -19,6 +19,7 @@ from django.urls import path,include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path("api/vendor/v1/", include("main.vendor_urls")),
     path("",include('main.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
     path("silk/", include("silk.urls", namespace="silk"))

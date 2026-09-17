@@ -456,3 +456,71 @@ These endpoints allow authenticated customers to create cab bookings and retriev
 *   Notes:
     - Vendor confirmation (assignment of `car`, `driver_name`, `driver_no` and changing `status` to `CONFIRMED`) is performed in the server-rendered vendor tools (see `/vendor-cab-bookings/` and the confirm page at `/cab-bookings/<id>/confirm/`).
 
+# Vendor API v1
+
+The Android vendor application uses the versioned JSON API at
+`/api/vendor/v1/`. Existing customer endpoints and the server-rendered vendor
+portal remain unchanged.
+
+All resource endpoints require `Authorization: Bearer <access>` and a user with
+a `Vendor` profile. Collection responses use the shape
+`{ "count": 0, "next": null, "previous": null, "results": [] }`. The default
+page size is 20; `page_size` may be set up to 100. Validation errors are DRF
+field-error objects and authorization errors contain `detail`.
+
+## Authentication
+
+| Method | Path | Body / response |
+|---|---|---|
+| POST | `/api/vendor/v1/auth/login` | Send `username`, `password`; returns `access`, `refresh`, `vendor` |
+| POST | `/api/vendor/v1/auth/refresh` | Send `refresh`; returns a new `access` token |
+| GET | `/api/vendor/v1/me` | Current vendor account and company summary |
+
+Customer-only users are rejected by both vendor login and refresh.
+
+## Resources
+
+| Method | Path | Notes |
+|---|---|---|
+| GET, POST | `/api/vendor/v1/stops` | Global stop collection; supports `search` |
+| GET, POST | `/api/vendor/v1/routes` | Global routes with ordered nested `route_stops`; supports `search` |
+| GET, PATCH | `/api/vendor/v1/routes/{id}` | Update route metadata and optionally replace ordered `stops` atomically |
+| GET, POST | `/api/vendor/v1/trips` | Current vendor's trips only |
+| GET, PATCH | `/api/vendor/v1/trips/{id}` | Current vendor ownership is enforced |
+| POST | `/api/vendor/v1/trips/bulk` | Atomically creates one trip for each day in `month`/`year` |
+| GET | `/api/vendor/v1/bookings` | Passenger bookings for the current vendor's trips only |
+| GET, POST | `/api/vendor/v1/cars` | Global cars |
+| GET | `/api/vendor/v1/cab-bookings` | Global cab requests |
+| POST | `/api/vendor/v1/cab-bookings/{id}/confirm` | Assigns `car`, `driver_name`, `driver_no` |
+
+Trip and booking collections support `status`, `date_from`, `date_to`, and
+`search`. Cab bookings support the same filters. Dates are `YYYY-MM-DD` query
+values. Datetimes in request and response bodies are ISO-8601.
+
+Route write example:
+
+```json
+{
+  "name": "Pilani to Loharu",
+  "description": "Morning route",
+  "stops": [
+    {"stop_id": 1, "order": 1, "minutes_from_previous_stop": 0, "distance_from_previous_stop": 0},
+    {"stop_id": 2, "order": 2, "minutes_from_previous_stop": 35, "distance_from_previous_stop": 25}
+  ]
+}
+```
+
+Orders must be unique and consecutive from 1, stops cannot repeat, the first
+stop must have zero distance/time, and later stops require positive values.
+
+Bulk trip example:
+
+```json
+{"route": 1, "departure_time": "09:30", "month": 10, "year": 2026, "vehicle_capacity": 6, "cost_per_km": "150.00"}
+```
+
+Cab confirmation locks the request and only permits `BOOKED` → `CONFIRMED`.
+An already handled request returns HTTP 409, preventing another vendor from
+overwriting the assignment.
+
+---
